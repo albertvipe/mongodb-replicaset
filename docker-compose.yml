@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  mongo-1:
+    container_name: mongo-1
+    image: mongo:${MONGO_VERSION}
+    command: --auth --wiredTigerCacheSizeGB=1 --bind_ip_all --replSet "rs0"
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD
+    volumes:
+      - ${DATA_PATH}/mongo-1/configdb:/data/configdb
+      - ${DATA_PATH}/mongo-1/db:/data/db
+      - ${DATA_PATH}/mongo-key:/mongo-key
+      - ./config/${CLUSTER_TYPE}/initiate.js:/initiate.js
+    ports:
+      - "30017:27017"
+  mongo-2:
+    container_name: mongo-2
+    image: mongo:${MONGO_VERSION}
+    command: --auth --wiredTigerCacheSizeGB=1 --bind_ip_all --replSet "rs0"
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD
+    volumes:
+      - ${DATA_PATH}/mongo-2/configdb:/data/configdb
+      - ${DATA_PATH}/mongo-2/db:/data/db
+      - ${DATA_PATH}/mongo-key:/mongo-key
+      - ./config/${CLUSTER_TYPE}/initiate.js:/initiate.js
+    ports:
+      - "31017:27017"
+  mongo-3:
+    container_name: mongo-3
+    image: mongo:${MONGO_VERSION}
+    command: --auth --wiredTigerCacheSizeGB=1 --bind_ip_all --replSet "rs0"
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD
+    volumes:
+      - ${DATA_PATH}/mongo-3/configdb:/data/configdb
+      - ${DATA_PATH}/mongo-3/db:/data/db
+      - ${DATA_PATH}/mongo-key:/mongo-key
+      - ./config/${CLUSTER_TYPE}/initiate.js:/initiate.js
+    ports:
+      - "32017:27017"
+  mongo-hidden:
+    container_name: mongo-hidden
+    image: mongo:${MONGO_VERSION}
+    command: --auth --wiredTigerCacheSizeGB=1 --bind_ip_all --replSet "rs0"
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD
+    volumes:
+      - ${DATA_PATH}/mongo-hidden/configdb:/data/configdb
+      - ${DATA_PATH}/mongo-hidden/db:/data/db
+      - ${DATA_PATH}/mongo-key:/mongo-key
+    ports:
+      - "33017:27017"
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=$MONGO_INITDB_ROOT_PASSWORD
+      - ME_CONFIG_MONGODB_SERVER=mongo-1
+    ports:
+      - 8081:8081
