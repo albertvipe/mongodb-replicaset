@@ -2,21 +2,27 @@
 Docker-compose tu deploy a mongodb cluster with 4 replicas
 
 ## Configuration and Credentials
-Check the `.env` file to configure the cluster.
-The secrets like the `MONGO_INITDB_ROOT_PASSWORD` it must be set on the host directly for security reasons. The cluster will read it directly from the host.
-To generate it you can use this command `export MONGO_INITDB_ROOT_PASSWORD=$(pwgen -1s 20)`
+### `.env` file
+If you still don't have it, copy the `.env.example` and update it with your desired values.
 
-Keep in mind that the root credentials set on `MONGO_INITDB_ROOT_USERNAME` and `MONGO_INITDB_ROOT_PASSWORD` are only used on the first time that you run the Cluster. The next times that you run the cluster, if there is an old database set on the volume it will take the old credentials.
+### Secrets
+The secrets like the `MONGO_ADMIN_PASSWORD` should never be defined on the `.env` file for security reasons. Is better to configure it directly on the host and avoid have it published.
+To generate it you can use this command `export MONGO_ADMIN_PASSWORD=$(pwgen -1s 20)`
+
+### Key file
+Is high recommended having a MongoDB cluster with [ReplicaSet with enforced authentication between members](https://docs.mongodb.com/manual/tutorial/deploy-replica-set-with-keyfile-access-control/#deploy-replica-set-with-keyfile-authentication).
+Because of that, on our (docker-compose.yml)[docker-compose.yml] we have a volume to map a keyfile. If you don't have any key file, generate one where you have set the `${DATA_PATH}` on the `.env` file:
+```
+openssl rand -base64 756 > ${DATA_PATH}/mongo-key/rs.key
+chmod 400 ${DATA_PATH}/mongo-key/rs.key
+```
+
+
 
 ## Initiate the cluster
-On any of the 3 main replicas (the hidden doesn't have it because if you can not initiate from it) run the command:
+On the container named `mongo-1` run the [`initiate.sh`](config/replication/initiate.sh) script to configure the replicaset:
 ```
-docker exec -ti mongo-1 mongo \
- --host mongo-1 \
- -u root_username \
- -p current_password \
- --authenticationDatabase admin \
- initiate.js
+docker exec -ti mongo-1 sh initiate.sh
 ```
 
 
