@@ -16,7 +16,7 @@ Because of that, on our (docker-compose.yml)[docker-compose.yml] we have a volum
 openssl rand -base64 756 > ${DATA_PATH}/mongo-key/rs.key
 chmod 400 ${DATA_PATH}/mongo-key/rs.key
 ```
-
+Probably, you should grant ownership to user with id 999 `chown 999:999 ${DATA_PATH}/mongo-key/rs.key` to the key file to avoid permissions issues.
 
 
 ## Initiate the cluster
